@@ -2,10 +2,23 @@ package com.tecsup.ayudacampus.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+val CianPrimario = Color(0xFF0891B2)
+val CianContenedor = Color(0xFFCFFAFE)
+val CianFondo = Color(0xFFF7FDFE)
+
+
+val VioletaPrimario = Color(0xFF7C3AED)
+val VioletaContenedor = Color(0xFFEDE4FF)
+val VioletaFondo = Color(0xFFFAF8FF)
+
+
+val EstadoAbierto = Color(0xFFD97706)
+val EstadoEnProceso = Color(0xFF2563EB)
+val EstadoResuelto = Color(0xFF16A34A)
+val EstadoCerrado = Color(0xFF6B7280)
+
+
+val PrioridadAlta = Color(0xFFDC2626)
+val PrioridadMedia = Color(0xFFB45309)
+val PrioridadBaja = Color(0xFF6B7280)
