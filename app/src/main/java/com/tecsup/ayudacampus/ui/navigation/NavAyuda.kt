@@ -34,6 +34,8 @@ import com.tecsup.ayudacampus.ui.soporte.CategoriasScreen
 import com.tecsup.ayudacampus.viewmodel.AyudaViewModelFactory
 import com.tecsup.ayudacampus.viewmodel.CategoriasViewModel
 import com.tecsup.ayudacampus.viewmodel.SesionViewModel
+import com.tecsup.ayudacampus.ui.cliente.MisTicketsScreen
+import com.tecsup.ayudacampus.viewmodel.MisTicketsViewModel
 
 
 private fun destinoPrincipal(usuario: Usuario?): String = when {
@@ -81,18 +83,28 @@ fun NavAyuda(factory: AyudaViewModelFactory, sesionVm: SesionViewModel) {
 
 
         composable(Rutas.MIS_TICKETS) {
-            val usuario by sesionVm.usuarioActual.collectAsState()
-            PantallaProvisional(
-                titulo = "Mis tickets",
-                detalle = "Sesión de ${usuario?.nombre ?: ""} (Estudiante)",
-                onCerrarSesion = {
-                    sesionVm.cerrarSesion()
-                    navController.navigate(Rutas.LOGIN) {
-                        popUpTo(navController.graph.id) { inclusive = true }
-                    }
+                val usuario by sesionVm.usuarioActual.collectAsState()
+                usuario?.let { u ->
+                    val vm: MisTicketsViewModel = viewModel(
+                        key = "mis_tickets_${u.id}",
+                        factory = factory.paraUsuario(u)
+                    )
+                    MisTicketsScreen(
+                        vm = vm,
+                        usuario = u,
+                        onTicket = { /* Paso 9: abrir el detalle */ },
+                        onNuevo = { /* Paso 8: abrir el formulario */ },
+                        // TEMPORAL: hasta el Paso 12, "Perfil" cierra la sesión para poder probar los dos roles
+                        onPerfil = {
+                            sesionVm.cerrarSesion()
+                            navController.navigate(Rutas.LOGIN) {
+                                popUpTo(navController.graph.id) { inclusive = true }
+                            }
+                        }
+                    )
                 }
-            )
-        }
+            }
+
 
 
         composable(Rutas.PANEL) {
