@@ -21,6 +21,8 @@ class AyudaRepositoryRoom(private val db: AyudaDatabase) : AyudaRepository {
 
     override suspend fun login(correo: String, clave: String): Usuario? =
         usuarioDao.login(correo, clave)
+    override suspend fun buscarUsuario(id: Int): Usuario? =
+        usuarioDao.buscarPorId(id)
 
 
 

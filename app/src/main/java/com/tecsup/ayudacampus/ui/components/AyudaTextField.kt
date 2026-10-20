@@ -11,6 +11,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.material3.MaterialTheme
 
 @Composable
 fun AyudaTextField(
@@ -33,7 +34,9 @@ fun AyudaTextField(
         singleLine = singleLine,
         minLines = minLineas,
         isError = error != null,
-        leadingIcon = icono?.let { { Icon(it, contentDescription = null) } },
+        leadingIcon = icono?.let {
+            { Icon(it, contentDescription = null, tint = MaterialTheme.colorScheme.primary) }
+        },
         visualTransformation = if (esClave) PasswordVisualTransformation() else VisualTransformation.None,
         supportingText = error?.let { { Text(it) } }
     )

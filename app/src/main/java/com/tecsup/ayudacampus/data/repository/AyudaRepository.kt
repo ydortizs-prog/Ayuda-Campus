@@ -12,6 +12,7 @@ interface AyudaRepository {
 
 
     suspend fun login(correo: String, clave: String): Usuario?
+    suspend fun buscarUsuario(id: Int): Usuario?
 
     fun observarCategorias(): Flow<List<Categoria>>
     fun observarCategoriasActivas(): Flow<List<Categoria>>
