@@ -33,16 +33,16 @@ class MisTicketsViewModel(
     private val _busqueda = MutableStateFlow("")
     val busqueda: StateFlow<String> = _busqueda.asStateFlow()
 
-    // Solo los tickets de ESTE estudiante
+
     private val delCliente = repo.observarTicketsCliente(usuario.id)
 
-    // Combina los tres flujos: tickets + filtro de estado + texto de búsqueda
+
     val tickets: StateFlow<List<TicketConDetalle>> =
         combine(delCliente, _filtro, _busqueda) { lista, filtro, texto ->
             lista.filter { coincideEstado(it, filtro) && coincideTexto(it, texto) }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    // Cantidad de tickets abiertos, para el saludo
+
     val abiertos: StateFlow<Int> = delCliente
         .map { lista -> lista.count { it.ticket.estado == EstadoTicket.ABIERTO.name } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
@@ -57,7 +57,7 @@ class MisTicketsViewModel(
 
     private fun coincideEstado(t: TicketConDetalle, filtro: FiltroTicket): Boolean =
         when (filtro) {
-            FiltroTicket.TODOS -> true   // incluye también los CERRADOS
+            FiltroTicket.TODOS -> true
             FiltroTicket.ABIERTOS -> t.ticket.estado == EstadoTicket.ABIERTO.name
             FiltroTicket.EN_PROCESO -> t.ticket.estado == EstadoTicket.EN_PROCESO.name
             FiltroTicket.RESUELTOS -> t.ticket.estado == EstadoTicket.RESUELTO.name
@@ -66,7 +66,7 @@ class MisTicketsViewModel(
     private fun coincideTexto(t: TicketConDetalle, texto: String): Boolean {
         val q = texto.trim()
         if (q.isEmpty()) return true
-        val numero = numeroTicket(t.ticket.id)   // "#0012"
+        val numero = numeroTicket(t.ticket.id)
         return t.ticket.titulo.contains(q, ignoreCase = true) ||
                 numero.contains(q.removePrefix("#"))
     }

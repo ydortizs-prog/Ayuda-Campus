@@ -6,6 +6,8 @@ import com.tecsup.ayudacampus.data.prefs.PreferenciasStore
 import com.tecsup.ayudacampus.data.repository.AyudaRepository
 import com.tecsup.ayudacampus.data.local.entity.Usuario
 
+
+
 class AyudaViewModelFactory(
     private val repo: AyudaRepository,
     private val prefs: PreferenciasStore
@@ -31,6 +33,17 @@ class AyudaViewModelFactory(
                 modelClass.isAssignableFrom(NuevoTicketViewModel::class.java) ->
                     NuevoTicketViewModel(repo, usuario) as T
                 // Los de los pasos 8, 9 y 12 se agregan aquí
+                else -> this@AyudaViewModelFactory.create(modelClass)
+            }
+
+        }
+    // Para el detalle: además del usuario, necesita el id del ticket
+    fun paraTicket(usuario: Usuario, ticketId: Int): ViewModelProvider.Factory =
+        object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : ViewModel> create(modelClass: Class<T>): T = when {
+                modelClass.isAssignableFrom(TicketDetalleViewModel::class.java) ->
+                    TicketDetalleViewModel(repo, usuario, ticketId) as T
                 else -> this@AyudaViewModelFactory.create(modelClass)
             }
         }

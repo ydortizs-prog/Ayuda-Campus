@@ -38,8 +38,12 @@ import com.tecsup.ayudacampus.viewmodel.CategoriasViewModel
 import com.tecsup.ayudacampus.viewmodel.MisTicketsViewModel
 import com.tecsup.ayudacampus.viewmodel.NuevoTicketViewModel
 import com.tecsup.ayudacampus.viewmodel.SesionViewModel
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
+import com.tecsup.ayudacampus.ui.cliente.DetalleTicketScreen
+import com.tecsup.ayudacampus.viewmodel.TicketDetalleViewModel
 
-// Según el rol del usuario: Panel (Soporte) o Mis tickets (Estudiante)
+
 private fun destinoPrincipal(usuario: Usuario?): String = when {
     usuario == null -> Rutas.LOGIN
     usuario.rol == Rol.ADMIN.name -> Rutas.PANEL
@@ -50,7 +54,7 @@ private fun destinoPrincipal(usuario: Usuario?): String = when {
 fun NavAyuda(factory: AyudaViewModelFactory, sesionVm: SesionViewModel) {
     val navController = rememberNavController()
 
-    // TEMPORAL (hasta el Paso 12): "Perfil" cierra la sesión para poder probar los dos roles
+
     val salirAlLogin = {
         sesionVm.cerrarSesion()
         navController.navigate(Rutas.LOGIN) {
@@ -99,7 +103,28 @@ fun NavAyuda(factory: AyudaViewModelFactory, sesionVm: SesionViewModel) {
                 MisTicketsScreen(
                     vm = vm,
                     usuario = u,
-                    onTicket = { /* Paso 9: abrir el detalle */ },
+                    onTicket = { id -> navController.navigate(Rutas.detalle(id)) },
+                    onNuevo = { navController.navigate(Rutas.NUEVO_TICKET) },
+                    onPerfil = salirAlLogin
+                )
+            }
+        }
+
+        composable(
+            route = Rutas.DETALLE,
+            arguments = listOf(navArgument("ticketId") { type = NavType.IntType })
+        ) { entrada ->
+            val ticketId = entrada.arguments?.getInt("ticketId") ?: return@composable
+            val usuario by sesionVm.usuarioActual.collectAsState()
+            usuario?.let { u ->
+                val vm: TicketDetalleViewModel = viewModel(
+                    key = "detalle_${u.id}_$ticketId",
+                    factory = factory.paraTicket(u, ticketId)
+                )
+                DetalleTicketScreen(
+                    vm = vm,
+                    usuario = u,
+                    onVolver = { navController.popBackStack() },
                     onNuevo = { navController.navigate(Rutas.NUEVO_TICKET) },
                     onPerfil = salirAlLogin
                 )
@@ -122,7 +147,7 @@ fun NavAyuda(factory: AyudaViewModelFactory, sesionVm: SesionViewModel) {
             }
         }
 
-        // PROVISIONAL: se reemplaza por PanelScreen en el Paso 10
+
         composable(Rutas.PANEL) {
             val usuario by sesionVm.usuarioActual.collectAsState()
             PantallaProvisional(

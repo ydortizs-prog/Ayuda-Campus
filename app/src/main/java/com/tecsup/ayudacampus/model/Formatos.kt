@@ -1,9 +1,12 @@
 package com.tecsup.ayudacampus.model
 
-// "#0012": el número del ticket a partir de su id
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
 fun numeroTicket(id: Int): String = "#" + id.toString().padStart(4, '0')
 
-// "Hace 25 min", "Hace 2 h", "Ayer", "Hace 3 d"
+
 fun tiempoRelativo(fecha: Long, ahora: Long = System.currentTimeMillis()): String {
     val minutos = (ahora - fecha) / 60_000
     return when {
@@ -14,3 +17,11 @@ fun tiempoRelativo(fecha: Long, ahora: Long = System.currentTimeMillis()): Strin
         else -> "Hace ${minutos / (24 * 60)} d"
     }
 }
+
+
+fun marcaDeTiempo(fecha: Long, ahora: Long = System.currentTimeMillis()): String =
+    if (ahora - fecha < 24 * 60 * 60_000L) {
+        SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(fecha))
+    } else {
+        tiempoRelativo(fecha, ahora)
+    }
