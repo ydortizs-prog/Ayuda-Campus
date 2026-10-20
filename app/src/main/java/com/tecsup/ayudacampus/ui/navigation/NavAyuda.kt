@@ -42,6 +42,10 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.tecsup.ayudacampus.ui.cliente.DetalleTicketScreen
 import com.tecsup.ayudacampus.viewmodel.TicketDetalleViewModel
+import com.tecsup.ayudacampus.ui.soporte.BandejaScreen
+import com.tecsup.ayudacampus.ui.soporte.PanelScreen
+import com.tecsup.ayudacampus.viewmodel.BandejaViewModel
+import com.tecsup.ayudacampus.viewmodel.PanelViewModel
 
 
 private fun destinoPrincipal(usuario: Usuario?): String = when {
@@ -59,6 +63,13 @@ fun NavAyuda(factory: AyudaViewModelFactory, sesionVm: SesionViewModel) {
         sesionVm.cerrarSesion()
         navController.navigate(Rutas.LOGIN) {
             popUpTo(navController.graph.id) { inclusive = true }
+        }
+    }
+    // Pestañas de Soporte: desde cualquiera se vuelve al Panel con "atrás"
+    val irATab: (String) -> Unit = { ruta ->
+        navController.navigate(ruta) {
+            popUpTo(Rutas.PANEL)
+            launchSingleTop = true
         }
     }
 
@@ -149,14 +160,27 @@ fun NavAyuda(factory: AyudaViewModelFactory, sesionVm: SesionViewModel) {
 
 
         composable(Rutas.PANEL) {
-            val usuario by sesionVm.usuarioActual.collectAsState()
-            PantallaProvisional(
-                titulo = "Panel de soporte",
-                detalle = "Sesión de ${usuario?.nombre ?: ""} (Soporte TI)",
-                onCerrarSesion = salirAlLogin
+            val vm: PanelViewModel = viewModel(factory = factory)
+            PanelScreen(
+                vm = vm,
+                onVerAltas = { irATab(Rutas.BANDEJA) },
+                onTickets = { irATab(Rutas.BANDEJA) },
+                onCategorias = { irATab(Rutas.CATEGORIAS) },
+                // TEMPORAL: hasta el Paso 12, "Ajustes" cierra la sesión
+                onAjustes = salirAlLogin
             )
         }
-
+        composable(Rutas.BANDEJA) {
+            val vm: BandejaViewModel = viewModel(factory = factory)
+            BandejaScreen(
+                vm = vm,
+                onVolver = { irATab(Rutas.PANEL) },
+                onTicket = { /* Paso 11: abrir "Atender ticket" */ },
+                onPanel = { irATab(Rutas.PANEL) },
+                onCategorias = { irATab(Rutas.CATEGORIAS) },
+                onAjustes = salirAlLogin
+            )
+        }
         composable(Rutas.CATEGORIAS) {
             val vm: CategoriasViewModel = viewModel(factory = factory)
             CategoriasScreen(vm = vm, onEditar = { /* Paso 11: formulario de categoría */ })

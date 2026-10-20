@@ -19,6 +19,10 @@ class AyudaViewModelFactory(
             CategoriasViewModel(repo) as T
         modelClass.isAssignableFrom(SesionViewModel::class.java) ->
             SesionViewModel(repo, prefs) as T
+        modelClass.isAssignableFrom(PanelViewModel::class.java) ->
+            PanelViewModel(repo) as T
+        modelClass.isAssignableFrom(BandejaViewModel::class.java) ->
+            BandejaViewModel(repo) as T
 
         else -> throw IllegalArgumentException("ViewModel desconocido: ${modelClass.name}")
     }
