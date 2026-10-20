@@ -27,17 +27,19 @@ import androidx.navigation.compose.rememberNavController
 import com.tecsup.ayudacampus.data.local.entity.Usuario
 import com.tecsup.ayudacampus.model.Rol
 import com.tecsup.ayudacampus.ui.cliente.LoginScreen
+import com.tecsup.ayudacampus.ui.cliente.MisTicketsScreen
+import com.tecsup.ayudacampus.ui.cliente.NuevoTicketScreen
 import com.tecsup.ayudacampus.ui.cliente.SplashScreen
 import com.tecsup.ayudacampus.ui.components.AyudaButton
 import com.tecsup.ayudacampus.ui.components.EstiloBoton
 import com.tecsup.ayudacampus.ui.soporte.CategoriasScreen
 import com.tecsup.ayudacampus.viewmodel.AyudaViewModelFactory
 import com.tecsup.ayudacampus.viewmodel.CategoriasViewModel
-import com.tecsup.ayudacampus.viewmodel.SesionViewModel
-import com.tecsup.ayudacampus.ui.cliente.MisTicketsScreen
 import com.tecsup.ayudacampus.viewmodel.MisTicketsViewModel
+import com.tecsup.ayudacampus.viewmodel.NuevoTicketViewModel
+import com.tecsup.ayudacampus.viewmodel.SesionViewModel
 
-
+// Según el rol del usuario: Panel (Soporte) o Mis tickets (Estudiante)
 private fun destinoPrincipal(usuario: Usuario?): String = when {
     usuario == null -> Rutas.LOGIN
     usuario.rol == Rol.ADMIN.name -> Rutas.PANEL
@@ -48,6 +50,14 @@ private fun destinoPrincipal(usuario: Usuario?): String = when {
 fun NavAyuda(factory: AyudaViewModelFactory, sesionVm: SesionViewModel) {
     val navController = rememberNavController()
 
+    // TEMPORAL (hasta el Paso 12): "Perfil" cierra la sesión para poder probar los dos roles
+    val salirAlLogin = {
+        sesionVm.cerrarSesion()
+        navController.navigate(Rutas.LOGIN) {
+            popUpTo(navController.graph.id) { inclusive = true }
+        }
+    }
+
     NavHost(navController = navController, startDestination = Rutas.SPLASH) {
 
         composable(Rutas.SPLASH) {
@@ -56,7 +66,6 @@ fun NavAyuda(factory: AyudaViewModelFactory, sesionVm: SesionViewModel) {
             var splashTerminado by remember { mutableStateOf(false) }
 
             SplashScreen(onTerminar = { splashTerminado = true })
-
 
             LaunchedEffect(sesionLista, splashTerminado) {
                 if (sesionLista && splashTerminado) {
@@ -70,7 +79,6 @@ fun NavAyuda(factory: AyudaViewModelFactory, sesionVm: SesionViewModel) {
         composable(Rutas.LOGIN) {
             val usuario by sesionVm.usuarioActual.collectAsState()
 
-
             LaunchedEffect(usuario) {
                 usuario?.let {
                     navController.navigate(destinoPrincipal(it)) {
@@ -81,43 +89,46 @@ fun NavAyuda(factory: AyudaViewModelFactory, sesionVm: SesionViewModel) {
             LoginScreen(vm = sesionVm)
         }
 
-
         composable(Rutas.MIS_TICKETS) {
-                val usuario by sesionVm.usuarioActual.collectAsState()
-                usuario?.let { u ->
-                    val vm: MisTicketsViewModel = viewModel(
-                        key = "mis_tickets_${u.id}",
-                        factory = factory.paraUsuario(u)
-                    )
-                    MisTicketsScreen(
-                        vm = vm,
-                        usuario = u,
-                        onTicket = { /* Paso 9: abrir el detalle */ },
-                        onNuevo = { /* Paso 8: abrir el formulario */ },
-                        // TEMPORAL: hasta el Paso 12, "Perfil" cierra la sesión para poder probar los dos roles
-                        onPerfil = {
-                            sesionVm.cerrarSesion()
-                            navController.navigate(Rutas.LOGIN) {
-                                popUpTo(navController.graph.id) { inclusive = true }
-                            }
-                        }
-                    )
-                }
+            val usuario by sesionVm.usuarioActual.collectAsState()
+            usuario?.let { u ->
+                val vm: MisTicketsViewModel = viewModel(
+                    key = "mis_tickets_${u.id}",
+                    factory = factory.paraUsuario(u)
+                )
+                MisTicketsScreen(
+                    vm = vm,
+                    usuario = u,
+                    onTicket = { /* Paso 9: abrir el detalle */ },
+                    onNuevo = { navController.navigate(Rutas.NUEVO_TICKET) },
+                    onPerfil = salirAlLogin
+                )
             }
+        }
 
+        composable(Rutas.NUEVO_TICKET) {
+            val usuario by sesionVm.usuarioActual.collectAsState()
+            usuario?.let { u ->
+                val vm: NuevoTicketViewModel = viewModel(
+                    key = "nuevo_ticket_${u.id}",
+                    factory = factory.paraUsuario(u)
+                )
+                NuevoTicketScreen(
+                    vm = vm,
+                    onVolver = { navController.popBackStack() },
+                    onCreado = { navController.popBackStack() },
+                    onPerfil = salirAlLogin
+                )
+            }
+        }
 
-
+        // PROVISIONAL: se reemplaza por PanelScreen en el Paso 10
         composable(Rutas.PANEL) {
             val usuario by sesionVm.usuarioActual.collectAsState()
             PantallaProvisional(
                 titulo = "Panel de soporte",
                 detalle = "Sesión de ${usuario?.nombre ?: ""} (Soporte TI)",
-                onCerrarSesion = {
-                    sesionVm.cerrarSesion()
-                    navController.navigate(Rutas.LOGIN) {
-                        popUpTo(navController.graph.id) { inclusive = true }
-                    }
-                }
+                onCerrarSesion = salirAlLogin
             )
         }
 

@@ -7,4 +7,5 @@ object Rutas {
     const val PANEL = "panel"
     const val CATEGORIAS = "categorias"
     // Las demás rutas se agregan en los pasos 7 al 12
+    const val NUEVO_TICKET = "nuevo_ticket"
 }
