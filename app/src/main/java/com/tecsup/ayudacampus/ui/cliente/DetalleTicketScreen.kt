@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -65,6 +66,9 @@ import com.tecsup.ayudacampus.ui.components.PrioridadChip
 import com.tecsup.ayudacampus.ui.components.StepperTicket
 import com.tecsup.ayudacampus.ui.components.iconoCategoria
 import com.tecsup.ayudacampus.ui.theme.EstadoResuelto
+import com.tecsup.ayudacampus.ui.theme.PrioridadAlta
+import com.tecsup.ayudacampus.ui.theme.PrioridadBaja
+import com.tecsup.ayudacampus.ui.theme.PrioridadMedia
 import com.tecsup.ayudacampus.viewmodel.TicketDetalleViewModel
 
 @Composable
@@ -121,6 +125,7 @@ private fun ColumnScope.ContenidoDetalle(
 ) {
     val t = d.ticket
     val estado = EstadoTicket.valueOf(t.estado)
+    val sla by vm.slaTexto.collectAsState()
     val comentarios = d.comentarios.sortedBy { it.fecha }
     val listState = rememberLazyListState()
 
@@ -177,6 +182,43 @@ private fun ColumnScope.ContenidoDetalle(
                             text = "${d.categoria.nombre} · ${t.ubicacion} · ${tiempoRelativo(t.fecha)}",
                             fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+        }
+
+        sla?.let { textoSla ->
+            item {
+                val prioridad = try { Prioridad.valueOf(t.prioridad) } catch (_: Exception) { Prioridad.BAJA }
+                val prioridadColor = when (prioridad) {
+                    Prioridad.ALTA -> PrioridadAlta
+                    Prioridad.MEDIA -> PrioridadMedia
+                    Prioridad.BAJA -> PrioridadBaja
+                }
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = prioridadColor.copy(alpha = 0.12f)
+                    )
+                ) {
+                    Row(
+                        modifier = Modifier.padding(14.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Warning,
+                            contentDescription = null,
+                            tint = prioridadColor,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Text(
+                            text = textoSla,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 13.sp,
+                            color = prioridadColor
                         )
                     }
                 }

@@ -65,4 +65,9 @@ class PanelViewModel(private val repo: AyudaRepository) : ViewModel() {
         }
             .flatMapLatest { limite -> repo.observarAltasSinAtender(limite) }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+
+    val tiempoPromedioResolucion: StateFlow<Double?> =
+        repo.observarTiempoPromedioResolucion()
+            .map { millis -> millis?.let { it / 3600000.0 } }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 }
