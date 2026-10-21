@@ -50,6 +50,7 @@ import com.tecsup.ayudacampus.ui.theme.PrioridadAlta
 import com.tecsup.ayudacampus.ui.theme.PrioridadBaja
 import com.tecsup.ayudacampus.ui.theme.PrioridadMedia
 import com.tecsup.ayudacampus.viewmodel.NuevoTicketViewModel
+import androidx.compose.material.icons.filled.Warning
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -63,6 +64,7 @@ fun NuevoTicketScreen(
     val form by vm.form.collectAsState()
     val errores by vm.errores.collectAsState()
     val creado by vm.creado.collectAsState()
+    val mesaAbierta by vm.mesaAbierta.collectAsState()
 
 
     LaunchedEffect(creado) {
@@ -88,7 +90,27 @@ fun NuevoTicketScreen(
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-
+            if (!mesaAbierta) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = PrioridadAlta.copy(alpha = 0.12f)
+                    )
+                ) {
+                    Row(
+                        modifier = Modifier.padding(14.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Icon(Icons.Filled.Warning, contentDescription = null, tint = PrioridadAlta)
+                        Column {
+                            Text("Mesa de ayuda cerrada", fontWeight = FontWeight.Bold, color = PrioridadAlta)
+                            Text("Por ahora no se reciben tickets nuevos.", fontSize = 13.sp)
+                        }
+                    }
+                }
+            }
             Text("Categoría", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -184,7 +206,7 @@ fun NuevoTicketScreen(
             }
 
             Spacer(modifier = Modifier.height(4.dp))
-            AyudaButton(texto = "Enviar ticket", onClick = vm::enviar)
+            AyudaButton(texto = "Enviar ticket", onClick = vm::enviar, enabled = mesaAbierta)
             Spacer(modifier = Modifier.height(8.dp))
         }
     }

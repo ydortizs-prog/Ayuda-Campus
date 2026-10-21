@@ -46,7 +46,13 @@ class MisTicketsViewModel(
     val abiertos: StateFlow<Int> = delCliente
         .map { lista -> lista.count { it.ticket.estado == EstadoTicket.ABIERTO.name } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+    val resueltos: StateFlow<Int> = delCliente
+        .map { lista -> lista.count { it.ticket.estado == EstadoTicket.RESUELTO.name } }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
+    val total: StateFlow<Int> = delCliente
+        .map { lista -> lista.size }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
     fun elegirFiltro(f: FiltroTicket) {
         _filtro.value = f
     }

@@ -1,6 +1,5 @@
 package com.tecsup.ayudacampus.ui.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
@@ -24,6 +23,18 @@ private val EsquemaSoporte = lightColorScheme(
     surface = VioletaFondo
 )
 
+private val EsquemaClienteOscuro = darkColorScheme(
+    primary = CianPrimario,
+    onPrimary = Color.White,
+    primaryContainer = CianPrimario.copy(alpha = 0.3f)
+)
+
+private val EsquemaSoporteOscuro = darkColorScheme(
+    primary = VioletaPrimario,
+    onPrimary = Color.White,
+    primaryContainer = VioletaPrimario.copy(alpha = 0.3f)
+)
+
 @Composable
 fun AyudaTheme(
     rol: Rol,
@@ -31,8 +42,8 @@ fun AyudaTheme(
     content: @Composable () -> Unit
 ) {
     val colores = when {
-        modoOscuro && rol == Rol.ADMIN -> darkColorScheme(primary = VioletaPrimario)
-        modoOscuro -> darkColorScheme(primary = CianPrimario)
+        modoOscuro && rol == Rol.ADMIN -> EsquemaSoporteOscuro
+        modoOscuro -> EsquemaClienteOscuro
         rol == Rol.ADMIN -> EsquemaSoporte
         else -> EsquemaCliente
     }

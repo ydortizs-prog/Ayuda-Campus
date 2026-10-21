@@ -35,13 +35,15 @@ class AyudaViewModelFactory(
                 modelClass.isAssignableFrom(MisTicketsViewModel::class.java) ->
                     MisTicketsViewModel(repo, usuario) as T
                 modelClass.isAssignableFrom(NuevoTicketViewModel::class.java) ->
-                    NuevoTicketViewModel(repo, usuario) as T
-                // Los de los pasos 8, 9 y 12 se agregan aquí
+                    NuevoTicketViewModel(repo, usuario, prefs) as T
+                modelClass.isAssignableFrom(NuevoTicketViewModel::class.java) ->
+                    NuevoTicketViewModel(repo, usuario, prefs) as T
+
                 else -> this@AyudaViewModelFactory.create(modelClass)
             }
 
         }
-    // Para el detalle: además del usuario, necesita el id del ticket
+
     fun paraTicket(usuario: Usuario, ticketId: Int): ViewModelProvider.Factory =
         object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")

@@ -75,7 +75,42 @@ class SesionViewModel(
     }
 
     fun cerrarSesion() {
-        _usuarioActual.value = null   // primero en memoria, para que la navegación no rebote
+        _usuarioActual.value = null
         viewModelScope.launch { prefs.cerrarSesion() }
+    }
+    // ---------- Preferencias guardadas en DataStore ----------
+    val notificaciones: StateFlow<Boolean> = prefs.notificaciones
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
+
+    val recibirTickets: StateFlow<Boolean> = prefs.recibirTickets
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
+
+    fun cambiarModoOscuro(valor: Boolean) {
+        viewModelScope.launch { prefs.guardarModoOscuro(valor) }
+    }
+
+    fun cambiarNotificaciones(valor: Boolean) {
+        viewModelScope.launch { prefs.guardarNotificaciones(valor) }
+    }
+
+    fun cambiarRecibirTickets(valor: Boolean) {
+        viewModelScope.launch { prefs.guardarRecibirTickets(valor) }
+    }
+
+    // Modo práctica: pasa al otro perfil sin volver a loguearse.
+    // Usa los dos usuarios de ejemplo (juan y soporte) que sembramos.
+    fun cambiarDePerfil(alTerminar: () -> Unit) {
+        val actual = _usuarioActual.value ?: return
+        val (correo, clave, rol) = if (actual.rol == Rol.ADMIN.name) {
+            Triple("juan@campus.test", "1234", Rol.CLIENTE)
+        } else {
+            Triple("soporte@campus.test", "admin", Rol.ADMIN)
+        }
+        viewModelScope.launch {
+            val otro = repo.login(correo, clave) ?: return@launch
+            prefs.guardarSesion(rol, otro.id)   // guarda el otro perfil en DataStore
+            _usuarioActual.value = otro
+            alTerminar()
+        }
     }
 }

@@ -12,9 +12,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tecsup.ayudacampus.ui.theme.VioletaContenedor
+import com.tecsup.ayudacampus.ui.theme.VioletaPrimario
 
 @Composable
 fun BurbujaComentario(
@@ -25,9 +27,12 @@ fun BurbujaComentario(
     autorEsSoporte: Boolean,
     modifier: Modifier = Modifier
 ) {
+
+    val oscuro = MaterialTheme.colorScheme.background.luminance() < 0.5f
+
     val colorFondo = when {
         propio -> MaterialTheme.colorScheme.primary
-        autorEsSoporte -> VioletaContenedor
+        autorEsSoporte -> if (oscuro) VioletaPrimario.copy(alpha = 0.35f) else VioletaContenedor
         else -> MaterialTheme.colorScheme.surfaceContainerLowest
     }
     val colorTexto = if (propio) {
@@ -53,4 +58,3 @@ fun BurbujaComentario(
         }
     }
 }
-

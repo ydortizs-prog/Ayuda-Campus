@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-
+import com.tecsup.ayudacampus.data.prefs.PreferenciasStore
 
 data class FormularioTicket(
     val categoriaId: Int? = null,
@@ -35,13 +35,16 @@ data class ErroresTicket(
 
 class NuevoTicketViewModel(
     private val repo: AyudaRepository,
-    private val usuario: Usuario
+    private val usuario: Usuario,
+    prefs: PreferenciasStore
 ) : ViewModel() {
 
 
     val categorias: StateFlow<List<Categoria>> = repo.observarCategoriasActivas()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    val mesaAbierta: StateFlow<Boolean> = prefs.recibirTickets
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
     private val _form = MutableStateFlow(FormularioTicket())
     val form: StateFlow<FormularioTicket> = _form.asStateFlow()
 
@@ -78,7 +81,7 @@ class NuevoTicketViewModel(
     }
 
     fun enviar() {
-        if (enviando) return
+        if (enviando || !mesaAbierta.value) return
         val f = _form.value
 
         val errores = ErroresTicket(

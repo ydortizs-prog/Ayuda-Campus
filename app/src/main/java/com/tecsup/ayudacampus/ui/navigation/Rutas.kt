@@ -6,7 +6,9 @@ object Rutas {
     const val MIS_TICKETS = "mis_tickets"
     const val PANEL = "panel"
     const val CATEGORIAS = "categorias"
-    // Las demás rutas se agregan en los pasos 7 al 12
+
+    const val PERFIL = "perfil"
+    const val AJUSTES = "ajustes"
     const val NUEVO_TICKET = "nuevo_ticket"
 
     const val BANDEJA = "bandeja"
@@ -14,7 +16,7 @@ object Rutas {
     const val ATENDER = "atender/{ticketId}"
     fun atender(id: Int) = "atender/$id"
 
-    // El id es opcional: sin id = crear categoría; con id = editarla
+
     const val FORMULARIO_CATEGORIA = "formulario_categoria?id={id}"
     fun formularioCategoria(id: Int? = null) =
         if (id == null) "formulario_categoria" else "formulario_categoria?id=$id"
