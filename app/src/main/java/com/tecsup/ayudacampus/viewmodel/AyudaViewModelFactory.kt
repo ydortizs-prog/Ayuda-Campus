@@ -48,6 +48,8 @@ class AyudaViewModelFactory(
             override fun <T : ViewModel> create(modelClass: Class<T>): T = when {
                 modelClass.isAssignableFrom(TicketDetalleViewModel::class.java) ->
                     TicketDetalleViewModel(repo, usuario, ticketId) as T
+                modelClass.isAssignableFrom(AtenderViewModel::class.java) ->
+                    AtenderViewModel(repo, usuario, ticketId) as T
                 else -> this@AyudaViewModelFactory.create(modelClass)
             }
         }

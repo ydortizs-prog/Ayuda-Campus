@@ -46,6 +46,9 @@ import com.tecsup.ayudacampus.ui.soporte.BandejaScreen
 import com.tecsup.ayudacampus.ui.soporte.PanelScreen
 import com.tecsup.ayudacampus.viewmodel.BandejaViewModel
 import com.tecsup.ayudacampus.viewmodel.PanelViewModel
+import com.tecsup.ayudacampus.ui.soporte.AtenderTicketScreen
+import com.tecsup.ayudacampus.ui.soporte.FormularioCategoriaScreen
+import com.tecsup.ayudacampus.viewmodel.AtenderViewModel
 
 
 private fun destinoPrincipal(usuario: Usuario?): String = when {
@@ -65,7 +68,7 @@ fun NavAyuda(factory: AyudaViewModelFactory, sesionVm: SesionViewModel) {
             popUpTo(navController.graph.id) { inclusive = true }
         }
     }
-    // Pestañas de Soporte: desde cualquiera se vuelve al Panel con "atrás"
+
     val irATab: (String) -> Unit = { ruta ->
         navController.navigate(ruta) {
             popUpTo(Rutas.PANEL)
@@ -175,7 +178,7 @@ fun NavAyuda(factory: AyudaViewModelFactory, sesionVm: SesionViewModel) {
             BandejaScreen(
                 vm = vm,
                 onVolver = { irATab(Rutas.PANEL) },
-                onTicket = { /* Paso 11: abrir "Atender ticket" */ },
+                onTicket = { id -> navController.navigate(Rutas.atender(id)) },
                 onPanel = { irATab(Rutas.PANEL) },
                 onCategorias = { irATab(Rutas.CATEGORIAS) },
                 onAjustes = salirAlLogin
@@ -183,7 +186,53 @@ fun NavAyuda(factory: AyudaViewModelFactory, sesionVm: SesionViewModel) {
         }
         composable(Rutas.CATEGORIAS) {
             val vm: CategoriasViewModel = viewModel(factory = factory)
-            CategoriasScreen(vm = vm, onEditar = { /* Paso 11: formulario de categoría */ })
+            CategoriasScreen(
+                vm = vm,
+                onNueva = { navController.navigate(Rutas.formularioCategoria()) },
+                onEditar = { id -> navController.navigate(Rutas.formularioCategoria(id)) },
+                onPanel = { irATab(Rutas.PANEL) },
+                onTickets = { irATab(Rutas.BANDEJA) },
+                // TEMPORAL: hasta el Paso 12, "Ajustes" cierra la sesión
+                onAjustes = salirAlLogin
+            )
+            composable(
+                route = Rutas.FORMULARIO_CATEGORIA,
+                arguments = listOf(
+                    navArgument("id") {
+                        type = NavType.IntType
+                        defaultValue = -1
+                    }
+                )
+            ) { entrada ->
+                val id = entrada.arguments?.getInt("id") ?: -1
+                val vm: CategoriasViewModel = viewModel(factory = factory)
+                FormularioCategoriaScreen(
+                    vm = vm,
+                    categoriaId = id.takeIf { it != -1 },
+                    onVolver = { navController.popBackStack() }
+                )
+            }
+            composable(
+                route = Rutas.ATENDER,
+                arguments = listOf(navArgument("ticketId") { type = NavType.IntType })
+            ) { entrada ->
+                val ticketId = entrada.arguments?.getInt("ticketId") ?: return@composable
+                val usuario by sesionVm.usuarioActual.collectAsState()
+                usuario?.let { u ->
+                    val vm: AtenderViewModel = viewModel(
+                        key = "atender_${u.id}_$ticketId",
+                        factory = factory.paraTicket(u, ticketId)
+                    )
+                    AtenderTicketScreen(
+                        vm = vm,
+                        usuario = u,
+                        onVolver = { navController.popBackStack() },
+                        onPanel = { irATab(Rutas.PANEL) },
+                        onCategorias = { irATab(Rutas.CATEGORIAS) },
+                        onAjustes = salirAlLogin
+                    )
+                }
+            }
         }
     }
 }

@@ -11,6 +11,17 @@ object Rutas {
 
     const val BANDEJA = "bandeja"
 
+    const val ATENDER = "atender/{ticketId}"
+    fun atender(id: Int) = "atender/$id"
+
+    // El id es opcional: sin id = crear categoría; con id = editarla
+    const val FORMULARIO_CATEGORIA = "formulario_categoria?id={id}"
+    fun formularioCategoria(id: Int? = null) =
+        if (id == null) "formulario_categoria" else "formulario_categoria?id=$id"
+
+
     const val DETALLE = "detalle/{ticketId}"
     fun detalle(id: Int) = "detalle/$id"
+
+
 }
