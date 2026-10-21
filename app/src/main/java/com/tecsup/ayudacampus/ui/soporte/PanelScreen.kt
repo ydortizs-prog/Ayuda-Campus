@@ -37,6 +37,7 @@ import com.tecsup.ayudacampus.ui.theme.EstadoEnProceso
 import com.tecsup.ayudacampus.ui.theme.EstadoResuelto
 import com.tecsup.ayudacampus.ui.theme.PrioridadAlta
 import com.tecsup.ayudacampus.viewmodel.PanelViewModel
+import java.util.Locale
 
 @Composable
 fun PanelScreen(
@@ -52,6 +53,7 @@ fun PanelScreen(
     val porEstado by vm.porEstado.collectAsState()
     val porCategoria by vm.porCategoria.collectAsState()
     val altas by vm.altasSinAtender.collectAsState()
+    val tiempoPromedio by vm.tiempoPromedioResolucion.collectAsState()
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -102,6 +104,41 @@ fun PanelScreen(
             Text("Tickets por categoría", fontSize = 18.sp, fontWeight = FontWeight.Bold)
             TarjetaBlanca {
                 GraficoBarras(datos = porCategoria)
+            }
+
+
+            Text("Tiempo promedio de resolución", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                    contentColor = MaterialTheme.colorScheme.onSurface
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    val texto = tiempoPromedio?.let {
+                        String.format(Locale.getDefault(), "%.1f h", it)
+                    } ?: "-"
+                    Text(
+                        text = texto,
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = "Promedio de resolución (tickets cerrados)",
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
 
 

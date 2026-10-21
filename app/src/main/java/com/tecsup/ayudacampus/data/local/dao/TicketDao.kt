@@ -73,4 +73,7 @@ interface TicketDao {
                 "WHERE prioridad = 'ALTA' AND estado = 'ABIERTO' AND fecha < :limite"
     )
     fun contarAltasSinAtender(limite: Long): Flow<Int>
+
+    @Query("SELECT AVG(fechaCierre - fecha) FROM tickets WHERE estado = 'CERRADO'")
+    fun observarTiempoPromedioResolucion(): Flow<Double?>
 }
