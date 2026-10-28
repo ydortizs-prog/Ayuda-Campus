@@ -44,7 +44,10 @@ import com.tecsup.ayudacampus.ui.theme.AyudaTheme
 import com.tecsup.ayudacampus.viewmodel.SesionViewModel
 
 @Composable
-fun LoginScreen(vm: SesionViewModel) {
+fun LoginScreen(
+    vm: SesionViewModel,
+    onRegistrarse: () -> Unit
+) {
     var rol by remember { mutableStateOf(Rol.CLIENTE) }
     var correo by remember { mutableStateOf("") }
     var clave by remember { mutableStateOf("") }
@@ -121,7 +124,7 @@ fun LoginScreen(vm: SesionViewModel) {
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.primary
                         )
-                        TextButton(onClick = { /* sin función en este laboratorio */ }) {
+                        TextButton(onClick = onRegistrarse) {
                             Text("Regístrate", fontWeight = FontWeight.SemiBold)
                         }
                     }

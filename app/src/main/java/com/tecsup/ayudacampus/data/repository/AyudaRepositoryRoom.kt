@@ -28,7 +28,11 @@ class AyudaRepositoryRoom(private val db: AyudaDatabase) : AyudaRepository {
     override suspend fun buscarUsuario(id: Int): Usuario? =
         usuarioDao.buscarPorId(id)
 
+    override suspend fun buscarUsuarioPorCorreo(correo: String): Usuario? =
+        usuarioDao.buscarPorCorreo(correo)
 
+    override suspend fun registrarUsuario(usuario: Usuario): Long =
+        usuarioDao.insertarUsuario(usuario)
 
     override fun observarCategorias(): Flow<List<Categoria>> =
         categoriaDao.observarTodas()

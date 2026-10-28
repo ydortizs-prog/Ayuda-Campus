@@ -19,6 +19,8 @@ class AyudaViewModelFactory(
             CategoriasViewModel(repo) as T
         modelClass.isAssignableFrom(SesionViewModel::class.java) ->
             SesionViewModel(repo, prefs) as T
+        modelClass.isAssignableFrom(RegistroViewModel::class.java) ->
+            RegistroViewModel(repo) as T
         modelClass.isAssignableFrom(PanelViewModel::class.java) ->
             PanelViewModel(repo) as T
         modelClass.isAssignableFrom(BandejaViewModel::class.java) ->

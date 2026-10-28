@@ -1,3 +1,4 @@
+
 package com.tecsup.ayudacampus.data.local.dao
 
 import androidx.room.Dao
@@ -19,4 +20,16 @@ interface UsuarioDao {
 
     @Query("SELECT * FROM usuarios WHERE id = :id LIMIT 1")
     suspend fun buscarPorId(id: Int): Usuario?
+
+    // REGISTRO DE ESTUDIANTES
+
+    @Query("""
+        SELECT * FROM usuarios
+        WHERE LOWER(correo) = LOWER(:correo)
+        LIMIT 1
+    """)
+    suspend fun buscarPorCorreo(correo: String): Usuario?
+
+    @Insert
+    suspend fun insertarUsuario(usuario: Usuario): Long
 }

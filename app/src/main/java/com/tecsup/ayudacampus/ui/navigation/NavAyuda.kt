@@ -38,6 +38,9 @@ import com.tecsup.ayudacampus.viewmodel.SesionViewModel
 import com.tecsup.ayudacampus.viewmodel.TicketDetalleViewModel
 import com.tecsup.ayudacampus.ui.cliente.NotificacionesScreen
 import com.tecsup.ayudacampus.viewmodel.NotificacionesViewModel
+import com.tecsup.ayudacampus.ui.cliente.RegistroScreen
+import com.tecsup.ayudacampus.viewmodel.RegistroViewModel
+
 private fun destinoPrincipal(usuario: Usuario?): String = when {
     usuario == null -> Rutas.LOGIN
     usuario.rol == Rol.ADMIN.name -> Rutas.PANEL
@@ -109,10 +112,27 @@ fun NavAyuda(factory: AyudaViewModelFactory, sesionVm: SesionViewModel) {
                     }
                 }
             }
-            LoginScreen(vm = sesionVm)
+            LoginScreen(
+                vm = sesionVm,
+                onRegistrarse = {
+                    navController.navigate(Rutas.REGISTRO)
+                }
+            )
         }
 
+        composable(Rutas.REGISTRO) {
 
+            val vm: RegistroViewModel = viewModel(
+                factory = factory
+            )
+
+            RegistroScreen(
+                vm = vm,
+                onVolver = {
+                    navController.popBackStack()
+                }
+            )
+        }
 
         composable(Rutas.MIS_TICKETS) {
             val usuario by sesionVm.usuarioActual.collectAsState()
