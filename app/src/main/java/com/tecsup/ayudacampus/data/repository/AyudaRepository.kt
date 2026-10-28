@@ -7,6 +7,7 @@ import com.tecsup.ayudacampus.model.ConteoCategoria
 import com.tecsup.ayudacampus.model.EstadoTicket
 import com.tecsup.ayudacampus.model.Prioridad
 import kotlinx.coroutines.flow.Flow
+import com.tecsup.ayudacampus.data.local.entity.Notificacion
 
 interface AyudaRepository {
 
@@ -46,4 +47,23 @@ interface AyudaRepository {
     fun observarCantidadPorCategoria(): Flow<List<ConteoCategoria>>
     fun observarAltasSinAtender(limite: Long): Flow<Int>
     fun observarTiempoPromedioResolucion(): Flow<Double?>
+
+    //  ACa agrego las NOTIFICACIONES
+
+    fun observarNotificaciones(
+        usuarioId: Int
+    ): Flow<List<Notificacion>>
+
+    fun contarNotificacionesNoLeidas(
+        usuarioId: Int
+    ): Flow<Int>
+
+    suspend fun guardarNotificacion(
+        notificacion: Notificacion
+    )
+
+    suspend fun marcarNotificacionLeida(
+        id: Int,
+        usuarioId: Int
+    )
 }

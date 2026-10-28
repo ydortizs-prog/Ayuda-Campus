@@ -42,6 +42,10 @@ import com.tecsup.ayudacampus.ui.components.BarraCliente
 import com.tecsup.ayudacampus.ui.components.TicketCard
 import com.tecsup.ayudacampus.viewmodel.FiltroTicket
 import com.tecsup.ayudacampus.viewmodel.MisTicketsViewModel
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.Badge
+
 
 @Composable
 fun MisTicketsScreen(
@@ -49,12 +53,14 @@ fun MisTicketsScreen(
     usuario: Usuario,
     onTicket: (Int) -> Unit,
     onNuevo: () -> Unit,
-    onPerfil: () -> Unit
+    onPerfil: () -> Unit,
+    onNotificaciones: () -> Unit = {}
 ) {
     val tickets by vm.tickets.collectAsState()
     val filtro by vm.filtro.collectAsState()
     val busqueda by vm.busqueda.collectAsState()
     val abiertos by vm.abiertos.collectAsState()
+    val noLeidas by vm.notificacionesNoLeidas.collectAsState()
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -84,7 +90,7 @@ fun MisTicketsScreen(
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Saludo
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -98,11 +104,33 @@ fun MisTicketsScreen(
                                 "$abiertos ${if (abiertos == 1) "abierto" else "abiertos"}",
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+
                 }
-                Icon(Icons.Filled.Notifications, contentDescription = "Notificaciones")
+
+
+                IconButton(onClick = onNotificaciones) {
+                    BadgedBox(
+                        badge = {
+                            if (noLeidas > 0) {
+                                Badge {
+                                    Text(
+                                        text = if (noLeidas > 99) "99+" else noLeidas.toString()
+                                    )
+                                }
+                            }
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Notifications,
+                            contentDescription = "Notificaciones: $noLeidas sin leer",
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
+
             }
 
-            // Buscador
+
             OutlinedTextField(
                 value = busqueda,
                 onValueChange = vm::buscar,

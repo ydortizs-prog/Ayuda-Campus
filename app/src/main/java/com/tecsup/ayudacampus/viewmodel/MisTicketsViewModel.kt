@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
+
 enum class FiltroTicket(val etiqueta: String) {
     TODOS("Todos"),
     ABIERTOS("Abiertos"),
@@ -42,7 +43,13 @@ class MisTicketsViewModel(
             lista.filter { coincideEstado(it, filtro) && coincideTexto(it, texto) }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-
+    val notificacionesNoLeidas =
+        repo.contarNotificacionesNoLeidas(usuario.id)
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = 0
+            )
     val abiertos: StateFlow<Int> = delCliente
         .map { lista -> lista.count { it.ticket.estado == EstadoTicket.ABIERTO.name } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)

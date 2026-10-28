@@ -28,21 +28,35 @@ class AyudaViewModelFactory(
     }
 
 
+
     fun paraUsuario(usuario: Usuario): ViewModelProvider.Factory =
         object : ViewModelProvider.Factory {
+
             @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T = when {
-                modelClass.isAssignableFrom(MisTicketsViewModel::class.java) ->
+            override fun <T : ViewModel> create(
+                modelClass: Class<T>
+            ): T = when {
+
+                modelClass.isAssignableFrom(
+                    MisTicketsViewModel::class.java
+                ) ->
                     MisTicketsViewModel(repo, usuario) as T
-                modelClass.isAssignableFrom(NuevoTicketViewModel::class.java) ->
-                    NuevoTicketViewModel(repo, usuario, prefs) as T
-                modelClass.isAssignableFrom(NuevoTicketViewModel::class.java) ->
+
+                modelClass.isAssignableFrom(
+                    NuevoTicketViewModel::class.java
+                ) ->
                     NuevoTicketViewModel(repo, usuario, prefs) as T
 
-                else -> this@AyudaViewModelFactory.create(modelClass)
+                modelClass.isAssignableFrom(
+                    NotificacionesViewModel::class.java
+                ) ->
+                    NotificacionesViewModel(repo, usuario.id) as T
+
+                else ->
+                    this@AyudaViewModelFactory.create(modelClass)
             }
-
         }
+
 
     fun paraTicket(usuario: Usuario, ticketId: Int): ViewModelProvider.Factory =
         object : ViewModelProvider.Factory {

@@ -10,12 +10,16 @@ import com.tecsup.ayudacampus.model.ConteoCategoria
 import com.tecsup.ayudacampus.model.EstadoTicket
 import com.tecsup.ayudacampus.model.Prioridad
 import kotlinx.coroutines.flow.Flow
-
+import com.tecsup.ayudacampus.data.local.entity.Notificacion
+import com.tecsup.ayudacampus.model.Rol
+import kotlinx.coroutines.flow.first
 class AyudaRepositoryRoom(private val db: AyudaDatabase) : AyudaRepository {
 
     private val categoriaDao = db.categoriaDao()
     private val usuarioDao = db.usuarioDao()
     private val ticketDao = db.ticketDao()
+
+    private val notificacionDao = db.notificacionDao()
 
 
 
@@ -76,11 +80,40 @@ class AyudaRepositoryRoom(private val db: AyudaDatabase) : AyudaRepository {
         ticketDao.observarUno(id)
 
     override suspend fun cambiarEstado(ticketId: Int, estado: EstadoTicket) {
+        val detalle = ticketDao.observarUno(ticketId).first() ?: return
+
+        if (detalle.ticket.estado == estado.name) return
+
         ticketDao.actualizarEstado(ticketId, estado.name)
+
+        notificacionDao.insertar(
+            Notificacion(
+                usuarioId = detalle.ticket.clienteId,
+                ticketId = ticketId,
+                titulo = "Cambio de estado",
+                mensaje = "Tu ticket #${ticketId.toString().padStart(4, '0')} " +
+                        "ahora está en ${estado.name.replace("_", " ").lowercase()}."
+            )
+        )
     }
 
     override suspend fun cambiarPrioridad(ticketId: Int, prioridad: Prioridad) {
+        val detalle = ticketDao.observarUno(ticketId).first() ?: return
+
+        if (detalle.ticket.prioridad == prioridad.name) return
+
         ticketDao.actualizarPrioridad(ticketId, prioridad.name)
+
+        notificacionDao.insertar(
+            Notificacion(
+                usuarioId = detalle.ticket.clienteId,
+                ticketId = ticketId,
+                titulo = "Prioridad actualizada",
+                mensaje = "La prioridad de tu ticket " +
+                        "#${ticketId.toString().padStart(4, '0')} " +
+                        "cambió a ${prioridad.name.lowercase()}."
+            )
+        )
     }
 
     override suspend fun cerrarConCalificacion(ticketId: Int, calificacion: Int) {
@@ -91,7 +124,11 @@ class AyudaRepositoryRoom(private val db: AyudaDatabase) : AyudaRepository {
         ticketDao.reabrir(ticketId)
     }
 
-    override suspend fun agregarComentario(ticketId: Int, autor: Usuario, texto: String) {
+    override suspend fun agregarComentario(
+        ticketId: Int,
+        autor: Usuario,
+        texto: String
+    ) {
         ticketDao.insertarComentario(
             Comentario(
                 ticketId = ticketId,
@@ -102,6 +139,20 @@ class AyudaRepositoryRoom(private val db: AyudaDatabase) : AyudaRepository {
                 fecha = System.currentTimeMillis()
             )
         )
+
+        if (autor.rol == Rol.ADMIN.name) {
+            val detalle = ticketDao.observarUno(ticketId).first() ?: return
+
+            notificacionDao.insertar(
+                Notificacion(
+                    usuarioId = detalle.ticket.clienteId,
+                    ticketId = ticketId,
+                    titulo = "Nueva respuesta de Soporte TI",
+                    mensaje = "Soporte TI respondió a tu ticket " +
+                            "#${ticketId.toString().padStart(4, '0')}."
+                )
+            )
+        }
     }
 
 
@@ -117,4 +168,29 @@ class AyudaRepositoryRoom(private val db: AyudaDatabase) : AyudaRepository {
 
     override fun observarTiempoPromedioResolucion(): Flow<Double?> =
         ticketDao.observarTiempoPromedioResolucion()
+
+    // Aca agregue las NOTIFICACIONES
+
+    override fun observarNotificaciones(
+        usuarioId: Int
+    ): Flow<List<Notificacion>> =
+        notificacionDao.observarPorUsuario(usuarioId)
+
+    override fun contarNotificacionesNoLeidas(
+        usuarioId: Int
+    ): Flow<Int> =
+        notificacionDao.contarNoLeidas(usuarioId)
+
+    override suspend fun guardarNotificacion(
+        notificacion: Notificacion
+    ) {
+        notificacionDao.insertar(notificacion)
+    }
+
+    override suspend fun marcarNotificacionLeida(
+        id: Int,
+        usuarioId: Int
+    ) {
+        notificacionDao.marcarLeida(id, usuarioId)
+    }
 }

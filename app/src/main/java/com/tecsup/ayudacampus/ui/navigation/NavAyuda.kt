@@ -36,8 +36,8 @@ import com.tecsup.ayudacampus.viewmodel.NuevoTicketViewModel
 import com.tecsup.ayudacampus.viewmodel.PanelViewModel
 import com.tecsup.ayudacampus.viewmodel.SesionViewModel
 import com.tecsup.ayudacampus.viewmodel.TicketDetalleViewModel
-
-
+import com.tecsup.ayudacampus.ui.cliente.NotificacionesScreen
+import com.tecsup.ayudacampus.viewmodel.NotificacionesViewModel
 private fun destinoPrincipal(usuario: Usuario?): String = when {
     usuario == null -> Rutas.LOGIN
     usuario.rol == Rol.ADMIN.name -> Rutas.PANEL
@@ -126,7 +126,10 @@ fun NavAyuda(factory: AyudaViewModelFactory, sesionVm: SesionViewModel) {
                     usuario = u,
                     onTicket = { id -> navController.navigate(Rutas.detalle(id)) },
                     onNuevo = { navController.navigate(Rutas.NUEVO_TICKET) },
-                    onPerfil = { irAClienteTab(Rutas.PERFIL) }
+                    onPerfil = { irAClienteTab(Rutas.PERFIL) },
+                    onNotificaciones = {
+                        navController.navigate(Rutas.NOTIFICACIONES)
+                    }
                 )
             }
         }
@@ -167,6 +170,30 @@ fun NavAyuda(factory: AyudaViewModelFactory, sesionVm: SesionViewModel) {
                 )
             }
         }
+
+        composable(Rutas.NOTIFICACIONES) {
+
+            val usuario by sesionVm.usuarioActual.collectAsState()
+
+            usuario?.let { u ->
+
+                val vm: NotificacionesViewModel = viewModel(
+                    key = "notificaciones_${u.id}",
+                    factory = factory.paraUsuario(u)
+                )
+
+                NotificacionesScreen(
+                    vm = vm,
+                    onVolver = {
+                        navController.popBackStack()
+                    },
+                    onTicket = { ticketId ->
+                        navController.navigate(Rutas.detalle(ticketId))
+                    }
+                )
+            }
+        }
+
 
         composable(Rutas.PERFIL) {
             val usuario by sesionVm.usuarioActual.collectAsState()

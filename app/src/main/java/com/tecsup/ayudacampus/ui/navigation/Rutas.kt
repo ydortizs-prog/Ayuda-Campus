@@ -13,6 +13,8 @@ object Rutas {
 
     const val BANDEJA = "bandeja"
 
+    const val NOTIFICACIONES = "notificaciones"
+
     const val ATENDER = "atender/{ticketId}"
     fun atender(id: Int) = "atender/$id"
 
